@@ -1,0 +1,33 @@
+{
+  "name": "api-social-network",
+  "version": "1.0.0",
+  "description": "This is an API for Social Network Application , it is written by NodeJS . About Front-end Part which is written by ReactJS will be published at another repository that called FE-Social-Network",
+  "main": "index.js",
+  "scripts": {
+    "test": "env-cmd -f ./config/dev.env jest",
+    "dev": "env-cmd -f ./config/dev.env nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/phucvo27/Api-Social-Network.git"
+  },
+  "author": "phuc vo",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/phucvo27/Api-Social-Network/issues"
+  },
+  "homepage": "https://github.com/phucvo27/Api-Social-Network#readme",
+  "dependencies": {
+    "cookie-parser": "^1.4.4",
+    "express": "^4.17.1",
+    "mongoose": "^5.6.9",
+    "multer": "^1.4.2",
+    "socket.io": "^2.2.0"
+  },
+  "devDependencies": {
+    "env-cmd": "^9.0.3",
+    "jest": "^24.8.0",
+    "nodemon": "^1.19.1",
+    "supertest": "^4.0.2"
+  }
+}

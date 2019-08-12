@@ -1,6 +1,6 @@
-const { app } = require('./app');
+const { httpServer } = require('./socket');
 
 
-app.listen(5000, ()=>{
+httpServer.listen(5000, ()=>{
     console.log(`Server is starting at : 5000`)
 })

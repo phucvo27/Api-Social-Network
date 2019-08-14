@@ -8,22 +8,30 @@ const verifyToken = utils.promisify(jwt.verify)
 
 const sendTokenResponse = async (user , statusCode, res)=>{
 
-    const token = await user.generateToken();
+    try{
+        const token = await user.generateToken();
 
-    const cookieOptions = {
-        httpOnly: true,
-        expires: new Date(Date.now() + 12*60*60*1000)
-    }
-    if(process.env.NODE_ENV === "production") cookieOptions.secure = true;
-    res.cookie('jwt', token, cookieOptions);
-    res.status(statusCode).send({
-        status: 'Success',
-        token,
-        data: {
-            user
-            
+        const cookieOptions = {
+            httpOnly: true,
+            expires: new Date(Date.now() + 12*60*60*1000)
         }
-    })
+        if(process.env.NODE_ENV === "production") cookieOptions.secure = true;
+        res.cookie('jwt', token, cookieOptions);
+        res.status(statusCode).send({
+            status: 'Success',
+            token,
+            data: {
+                user
+                
+            }
+        })
+    }catch(e){
+        res.status(400).send({
+            status: 'Fail',
+            message: e.message
+        })
+    }
+    
 }
 
 exports.protect = catchAsync( async (req, res, next)=>{
@@ -31,8 +39,10 @@ exports.protect = catchAsync( async (req, res, next)=>{
     const token = req.cookies.jwt;
     if(token){
         try{
-            const decoded = verifyToken(token, process.env.SECRET_KEY);
+            const decoded = await verifyToken(token, process.env.SECRET_KEY);
+            console.log(decoded)
             const user = await User.findById(decoded._id);
+            console.log(user)
             if(user){
                 const isValid = await user.isTokenStillValid(decoded.iat);
 
@@ -68,7 +78,7 @@ exports.updatePassword = catchAsync(async ( req, res, next)=>{
 })
 exports.signUp = catchAsync(async (req, res, next)=>{
     const { username, email, password, passwordConfirm } = req.body;
-
+    console.log(passwordConfirm)
     const user = await User.create({
         username,
         email,

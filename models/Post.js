@@ -7,19 +7,22 @@ const postSchemas = new mongoose.Schema({
         minlength: 1,
     },
     owner : {
+        required: true,
         type:  mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
     like: [
         {
             type:  mongoose.Schema.Types.ObjectId,
-            ref: 'User'
+            ref: 'User',
+            default: []
         }
     ],
     comments: [
         {
             type:  mongoose.Schema.Types.ObjectId,
-            ref: 'Comment'
+            ref: 'Comment',
+            default: []
         }
     ]
 }, {

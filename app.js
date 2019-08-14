@@ -3,7 +3,7 @@ const cookieParser = require('cookie-parser');
 require('./models/connection');
 
 const { userRouter } = require('./routes/userRouters');
-
+const { postRouter } = require('./routes/postRouters');
 const { globalErrorHandler } = require('./controllers/errorHandlers');
 
 const app = express();
@@ -19,6 +19,7 @@ app.use((req, res, next)=>{
 // Route
 
 app.use('/api/user', userRouter);
+app.use('/api/posts', postRouter);
 
 app.get('/error', (req, res, next)=>{
     next(new AppError('Something wrong', 400));

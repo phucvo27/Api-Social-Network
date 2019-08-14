@@ -31,7 +31,8 @@ const userSchemas = new mongoose.Schema({
                 return val === this.password
             },
             message: 'Make sure your confirm is same as your password '
-        }
+        },
+        required: [true, 'Please confirm your password']
     },
     role: {
         type: String,
@@ -78,7 +79,7 @@ userSchemas.pre('save', async function(next){
     }
     // hash password 
     user.password = await bcrypt.hash(user.password, 12);
-    user.passwordConfirm = undefined;
+    //user.passwordConfirm = undefined;
     next();
 })
 
@@ -107,15 +108,20 @@ userSchemas.statics.findByCredential = async function(email, password){
 userSchemas.methods.generateToken = async function(){
     const user = this;
 
-    // token will be expires in 12 hours
-    const token =  jwt.sign({
-        _id: user._id
-    }, process.env.SECRET_KEY, {
-        expiresIn: process.env.JWT_EXPIRES_IN
-    });
-    user.tokens.push({ token });
-    await user.save();
-    return token;
+    try{
+        // token will be expires in 12 hours
+        const token =  jwt.sign({
+            _id: user._id
+        }, process.env.SECRET_KEY, {
+            expiresIn: process.env.JWT_EXPIRES_IN
+        });
+        user.tokens.push({ token });
+        await user.save({ validateBeforeSave: false});
+        return token;
+    }catch(e){
+        throw new Error(e.message)
+    }
+    
 }
 
 userSchemas.methods.isTokenStillValid = function(timeOfToken){

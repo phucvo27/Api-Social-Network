@@ -65,11 +65,12 @@ exports.protect = catchAsync( async (req, res, next)=>{
 
 exports.updatePassword = catchAsync(async ( req, res, next)=>{
     // because , user must logged in to changed password
-    const user = req.user;
+    const user = await User.findById(req.user._id);
     const { password, passwordConfirm } = req.body;
 
     user.password = password;
     user.passwordConfirm = passwordConfirm;
+    user.passwordChangedAt = new Date();
     await user.save();
     res.status(200).send({
         status: 'Success',

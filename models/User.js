@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const validator = require('validator');
@@ -66,6 +67,14 @@ const userSchemas = new mongoose.Schema({
     passwordChangedAt: {
         type: Date,
         default: null
+    },
+    passwordResetToken: {
+        type: String,
+        default: null
+    },
+    passwordResetTokenExpire: {
+        type: Date,
+        default: null
     }
 });
 
@@ -105,6 +114,8 @@ userSchemas.statics.findByCredential = async function(email, password){
     }
 }
 
+//  Instance Method
+
 userSchemas.methods.generateToken = async function(){
     const user = this;
 
@@ -124,17 +135,45 @@ userSchemas.methods.generateToken = async function(){
     
 }
 
-userSchemas.methods.isTokenStillValid = function(timeOfToken){
+userSchemas.methods.removeToken = async function(token){
+    try{
+        const user = this;
+        user.tokens = await user.tokens.filter(item => item.token !== token);
+        user.save({ validateBeforeSave: false});
+        return;
+    }catch(e){
+        throw new Error('Could not remove token !!')
+    }
+
+}
+
+userSchemas.methods.isTokenStillValid = function(timeOfToken, currentToken){
     const user = this;
     if(user.passwordChangedAt){
         const changedTime = parseInt(user.passwordChangedAt.getTime() / 1000); // timeOfToken is second -> need to convert passwordChangedAt to second
-        return timeOfToken > changedTime;
+        const isStillExistInDB = user.tokens.find(token => token.token === currentToken);
+        console.log(isStillExistInDB)
+        return timeOfToken > changedTime && isStillExistInDB;
         // that's mean :  token is generated after the password changed
     }else{
         // User does not change password before
         return true;
     }
 }
+
+userSchemas.methods.generatePasswordToken = async function(){
+    const user = this;
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const passwordResetToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+
+    user.passwordResetToken = passwordResetToken;
+    user.passwordResetTokenExpire = Date.now() + 10*60*1000; // expire in 10 minute;
+    await user.save({ validateBeforeSave: false});
+
+    return resetToken;
+}
+
+
 
 // remove password when send back to client
 userSchemas.methods.toJSON = function(){

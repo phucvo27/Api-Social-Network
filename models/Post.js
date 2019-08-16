@@ -26,9 +26,16 @@ const postSchemas = new mongoose.Schema({
         }
     ]
 }, {
-    timestamps: true
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
 })
-
+// if the post have no comment , comments field will be null in our result
+postSchemas.virtual('comments', {
+    ref: 'Comment',
+    foreignField: 'post',
+    localField: '_id'
+})
 
 const Post = mongoose.model('Post', postSchemas);
 

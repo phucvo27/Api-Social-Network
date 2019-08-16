@@ -1,6 +1,8 @@
 const { Post } = require('../models/Post');
 const { catchAsync } = require('../utils/catchAsync');
 const { AppError } = require('../utils/AppError');
+
+
 const sendResponse = (data, statusCode, res)=>{
     
     res.status(statusCode).send({
@@ -19,8 +21,8 @@ exports.getAll = catchAsync( async(req, res, next)=>{
 })
 
 exports.getPost = catchAsync(async (req, res, next)=>{
-    console.log(req.params.id);
-    const post = await Post.findOne({_id: req.params.id});
+    //console.log(req.params.id);
+    const post = await Post.findById(req.params.id).populate('comments');
     sendResponse(post, 200, res);
 })
 

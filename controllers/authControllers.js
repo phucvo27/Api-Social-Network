@@ -80,7 +80,6 @@ exports.updatePassword = catchAsync(async ( req, res, next)=>{
 })
 exports.signUp = catchAsync(async (req, res, next)=>{
     const { username, email, password, passwordConfirm } = req.body;
-    console.log(passwordConfirm)
     const user = await User.create({
         username,
         email,

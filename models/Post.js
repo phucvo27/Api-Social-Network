@@ -17,13 +17,6 @@ const postSchemas = new mongoose.Schema({
             ref: 'User',
             default: []
         }
-    ],
-    comments: [
-        {
-            type:  mongoose.Schema.Types.ObjectId,
-            ref: 'Comment',
-            default: []
-        }
     ]
 }, {
     timestamps: true,

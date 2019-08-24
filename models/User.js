@@ -88,7 +88,7 @@ userSchemas.pre('save', async function(next){
     }
     // hash password 
     user.password = await bcrypt.hash(user.password, 12);
-    //user.passwordConfirm = undefined;
+    user.passwordConfirm = undefined;
     next();
 })
 

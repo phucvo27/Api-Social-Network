@@ -10,7 +10,10 @@ const { globalErrorHandler } = require('./controllers/errorHandlers');
 const app = express();
 app.use(express.static(`${__dirname}/public`))
 app.use(cors());
+
 app.use(express.json({ limit: '10kB'})); // only accept 10kb for data that sent from client
+app.use(express.urlencoded({extended: true}));
+
 app.use(cookieParser());
 app.use((req, res, next)=>{
     console.log(req.cookies);

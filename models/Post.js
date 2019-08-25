@@ -3,8 +3,11 @@ const mongoose = require('mongoose');
 const postSchemas = new mongoose.Schema({
     content: {
         type: String,
-        required: [true, 'Please provide the content for your status'],
         minlength: 1,
+    },
+    image: {
+        type: String,
+        default: null
     },
     owner : {
         required: true,

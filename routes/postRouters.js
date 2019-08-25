@@ -13,7 +13,7 @@ postRouter.use('/:postId/comments', commentRouters);
 postRouter
     .route('/')
     .get(authControllers.protect, postControllers.getAll)
-    .post(authControllers.protect,postControllers.createPost)
+    .post(authControllers.protect, postControllers.handleImageInPost, postControllers.resizeImageInPost ,postControllers.createPost)
     .patch(authControllers.protect, postControllers.updatePost);
 
 postRouter

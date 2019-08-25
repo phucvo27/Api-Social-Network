@@ -1,24 +1,9 @@
-const multer = require('multer');
 const sharp = require('sharp');
 const { User } = require('../models/User');
 const { catchAsync } = require('../utils/catchAsync');
 const { AppError } = require('../utils/AppError');
 const { sendEmail } = require('../utils/sendEmail')
-const multerStorage = multer.memoryStorage();
-
-const multerFilter = (req, file ,cb)=>{
-    // only accept image file
-    if(file.mimetype.startsWith('image/')){
-        
-        cb(null, true);
-    }else{
-        cb(new AppError('This is not image, please upload image', 400), false)
-    }
-}
-const upload = multer({
-    storage: multerStorage,
-    fileFilter: multerFilter
-})
+const { handleImage } = require('../utils/handleImageUpload');
 
 exports.getUser = catchAsync(async(req, res, next)=>{
     // 1. get current user base on _id
@@ -35,7 +20,17 @@ exports.getUser = catchAsync(async(req, res, next)=>{
     }
 })
 
-exports.handleAvatar = upload.single('avatar');
+const handleImageWithPromise = handleImage('avatar');
+
+exports.handleAvatar = catchAsync(async (req, res, next)=>{
+    try{
+        await handleImageWithPromise(req, res);
+        next();
+        
+    }catch(e){
+        return next(new AppError('Something went wrong when processing image', 400))
+    }
+})
 
 exports.resizeUserAvatar = catchAsync(async (req, res, next)=>{
     if(req.file){
@@ -51,12 +46,16 @@ exports.resizeUserAvatar = catchAsync(async (req, res, next)=>{
     }
 })
 exports.uploadAvatar = catchAsync(async(req, res, next)=>{
-    req.user.avatar = `img/users/${req.file.filename}.jpeg`;
-    await req.user.save({ validateBeforeSave: false });
-    res.status(200).send({
-        status: 'Success',
-        message: 'Upload Avatar successfully'
-    })
+    if(req.file){
+        req.user.avatar = `img/users/${req.file.filename}.jpeg`;
+        await req.user.save({ validateBeforeSave: false });
+        res.status(200).send({
+            status: 'Success',
+            message: 'Upload Avatar successfully'
+        })
+    }else{
+        return next(new AppError('Avatar can not be empty', 400))
+    }
 })
 exports.updateUser = catchAsync(async (req, res, next)=>{
     // Only update username

@@ -1,7 +1,11 @@
+const sharp = require('sharp')
 const { Post } = require('../models/Post');
 const { catchAsync } = require('../utils/catchAsync');
 const { AppError } = require('../utils/AppError');
+const { handleImage } = require('../utils/handleImageUpload');
 
+
+const handleImageWithPromise = handleImage('photo');
 
 const sendResponse = (data, statusCode, res)=>{
     
@@ -20,6 +24,32 @@ exports.getAll = catchAsync( async(req, res, next)=>{
     sendResponse(posts, 200, res);
 })
 
+exports.handleImageInPost = catchAsync(async (req, res, next)=>{
+    // handleImage(req, res, function(err){
+    //     if(err){
+    //         return next(new AppError('Something went wrong when processing image', 400))
+    //     }
+    // })
+    try{
+        await handleImageWithPromise(req, res);
+        next();
+        
+    }catch(e){
+        return next(new AppError('Something went wrong when processing image', 400))
+    }
+})
+exports.resizeImageInPost = catchAsync(async(req, res, next)=>{
+    if(!req.file){
+        return next();
+    }
+    req.file.filename = `post-${req.user._id}-${Date.now()}`;
+    await sharp(req.file.buffer)
+            .resize(800 ,600)
+            .toFormat('jpeg')
+            .jpeg({quality: 90})
+            .toFile(`public/img/posts/${req.file.filename}.jpeg`);
+    next();
+})
 exports.getPost = catchAsync(async (req, res, next)=>{
     //console.log(req.params.id);
     const post = await Post.findById(req.params.id).populate('comments');
@@ -29,12 +59,22 @@ exports.getPost = catchAsync(async (req, res, next)=>{
 
 exports.createPost = catchAsync(async (req, res, next)=>{
     const { content } = req.body;
-    const post = await Post.create({
-        content,
-        owner: req.user._id
-    })
-
-    sendResponse(post , 200, res);
+    const image = req.file ? `img/posts/${req.file.filename}.jpeg` : null;
+    if(!content && !req.file){
+        res.status(400).send({
+            status: 'Fail',
+            message: 'The status can not be empty'
+        })
+    }else{
+        const post = await Post.create({
+            content,
+            owner: req.user._id,
+            image
+        })
+    
+        sendResponse(post , 200, res);
+    }
+    
 });
 
 exports.updatePost = catchAsync(async (req, res, next)=>{

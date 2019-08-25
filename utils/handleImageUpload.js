@@ -19,3 +19,7 @@ const upload = multer({
 exports.handleImage = (fieldName)=>{
     return util.promisify(upload.single(fieldName))
 };
+
+exports.handleMultipleImages = util.promisify( upload.fields([
+    {name: 'albums', maxCount: 8}
+]))

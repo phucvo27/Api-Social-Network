@@ -5,6 +5,7 @@ require('./models/connection');
 
 const { userRouter } = require('./routes/userRouters');
 const { postRouter } = require('./routes/postRouters');
+const { albumRouter } = require('./routes/albumRouters');
 const { globalErrorHandler } = require('./controllers/errorHandlers');
 
 const app = express();
@@ -24,6 +25,7 @@ app.use((req, res, next)=>{
 
 app.use('/api/user', userRouter);
 app.use('/api/posts', postRouter);
+app.use('/api/albums', albumRouter);
 
 app.get('/error', (req, res, next)=>{
     next(new AppError('Something wrong', 400));

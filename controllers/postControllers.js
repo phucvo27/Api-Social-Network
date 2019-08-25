@@ -4,7 +4,6 @@ const { catchAsync } = require('../utils/catchAsync');
 const { AppError } = require('../utils/AppError');
 const { handleImage } = require('../utils/handleImageUpload');
 
-
 const handleImageWithPromise = handleImage('photo');
 
 const sendResponse = (data, statusCode, res)=>{
@@ -23,7 +22,7 @@ exports.getAll = catchAsync( async(req, res, next)=>{
     });
     sendResponse(posts, 200, res);
 })
-
+// Handle single image
 exports.handleImageInPost = catchAsync(async (req, res, next)=>{
     // handleImage(req, res, function(err){
     //     if(err){
@@ -55,7 +54,6 @@ exports.getPost = catchAsync(async (req, res, next)=>{
     const post = await Post.findById(req.params.id).populate('comments');
     sendResponse(post, 200, res);
 })
-
 
 exports.createPost = catchAsync(async (req, res, next)=>{
     const { content } = req.body;

@@ -18,13 +18,14 @@ async function sendEmail(toEmail, subject, text){
             from: 'Api-Social-Network Application', // sender address
             to: toEmail, // list of receivers
             subject: subject, // Subject line
-            text: text, // plain text body
+            text: `${text}`, // plain text body
             
           });
           //html: "<b>Hello world?</b>" // html body
           console.log('Email is sent !!!')
           return true;
     }catch(e){
+      console.log(e.message)
         return false;
     }
 }

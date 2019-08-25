@@ -66,13 +66,21 @@ const userSchemas = new mongoose.Schema({
     ],
     passwordChangedAt: {
         type: Date,
-        default: null
+        default: null,
     },
     passwordResetToken: {
         type: String,
         default: null
     },
     passwordResetTokenExpire: {
+        type: Date,
+        default: null
+    },
+    secretCode: {
+        type: Number,
+        default: null
+    },
+    secretCodeExpire: {
         type: Date,
         default: null
     }
@@ -150,7 +158,7 @@ userSchemas.methods.removeToken = async function(token){
 userSchemas.methods.isTokenStillValid = function(timeOfToken, currentToken){
     const user = this;
     if(user.passwordChangedAt){
-        const changedTime = parseInt(user.passwordChangedAt.getTime() / 1000); // timeOfToken is second -> need to convert passwordChangedAt to second
+        const changedTime = parseInt(user.passwordChangedAt.getTime() / 1000); // timeOfToken ( iat of jwt ) is second -> need to convert passwordChangedAt to second
         const isStillExistInDB = user.tokens.find(token => token.token === currentToken);
         console.log(isStillExistInDB)
         return timeOfToken > changedTime && isStillExistInDB;
@@ -173,17 +181,37 @@ userSchemas.methods.generatePasswordToken = async function(){
     return resetToken;
 }
 
+// Generate Secret Code for change email
+userSchemas.methods.generateSecretCode = async function(){
+    const user = this;
+    const secretCode = Math.floor(Math.random() * 10000);
 
+    user.secretCode = secretCode;
+    user.secretCodeExpire = Date.now() + 10 * 60 * 1000; // expired in 10 minutes
+    try{
+        await user.save( { validateBeforeSave: false });
+        return secretCode;
+    }catch(e){
+        throw new Error('Could not generate secret code')
+    }
+    
+
+}
+
+userSchemas.methods.isSecretCodeValid = function(secretCode){
+    return (this.secretCode === secretCode) && (this.secretCodeExpire.getTime() > Date.now())
+}
 
 // remove password when send back to client
 userSchemas.methods.toJSON = function(){
     const user = this.toObject();
     
-    delete user.password;
-    delete user.role;
-    delete user.chats;
+    const { email, username, _id} = user;
+    // delete user.password;
+    // delete user.role;
+    // delete user.chats;
 
-    return user;
+    return { email, username, _id};
 }
 
 const User = mongoose.model('User', userSchemas);

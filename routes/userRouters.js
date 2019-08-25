@@ -15,6 +15,9 @@ userRouter.patch('/change-password', authController.protect, authController.upda
 userRouter.post('/forgot-password', authController.forgotPassword)
 userRouter.patch('/reset-password/:token', authController.resetPassword);
 
+userRouter.get('/request-update-email', userControllers.requireUpdateEmail);
+userRouter.patch('/update-email', userControllers.updateEmail);
+
 userRouter
     .route('/me')
     .get(userControllers.getUser)

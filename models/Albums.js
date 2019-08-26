@@ -4,7 +4,8 @@ const mongoose = require('mongoose');
 const albumSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: [true, 'Please provide the name of your album']
+        required: [true, 'Please provide the name of your album'],
+        unique: true
     },
     images: [
         {
@@ -20,6 +21,31 @@ const albumSchema = new mongoose.Schema({
 }, {
     timestamps: true
 });
+
+albumSchema.statics.addImageToAlbum = async function(albumName, listImages, owner){
+    const Album = this;
+    const album = await Album.findOne({name: albumName});
+    if(album){
+        console.log(typeof owner, album.owner);
+        console.log(album.owner.toString() === owner.toString())
+        album.images = album.images.concat(listImages);
+        await album.save();
+    }else{
+        throw new Error('Could not find current Album');
+    }
+}
+
+albumSchema.methods.deleteMultiple = async function(listImage){
+    const album = this;
+    try{
+        await album.updateOne({$pull: {images: {$in: listImage}}});
+        return true;
+    }catch(e){
+        console.log(e.message)
+        throw new Error('Could not delete');
+    }
+    
+}
 
 const Album = mongoose.model('Album', albumSchema);
 

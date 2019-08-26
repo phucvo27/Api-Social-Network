@@ -41,7 +41,6 @@ exports.protect = catchAsync( async (req, res, next)=>{
     if(token){
         try{
             const decoded = await verifyToken(token, process.env.SECRET_KEY);
-            console.log(decoded)
             const user = await User.findById(decoded._id);
             //console.log(user)
             if(user){

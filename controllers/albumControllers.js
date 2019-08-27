@@ -99,7 +99,7 @@ exports.updateAlbum = catchAsync(async (req, res, next)=>{
     const { id } = req.params;
     const { name } = req.body;
     // find album;
-    const album = await Album.findById(id);
+    const album = await Album.findOne({_id: id, owner: req.user._id});
     if(album){
         if(name){
             album.name = name;

@@ -38,6 +38,7 @@ const sendTokenResponse = async (user , statusCode, res)=>{
 exports.protect = catchAsync( async (req, res, next)=>{
     // get token from cookies
     const token = req.cookies.jwt;
+    console.log(token);
     if(token){
         try{
             const decoded = await verifyToken(token, process.env.SECRET_KEY);
@@ -45,7 +46,7 @@ exports.protect = catchAsync( async (req, res, next)=>{
             //console.log(user)
             if(user){
                 const isValid = await user.isTokenStillValid(decoded.iat, token);
-
+                console.log('hehehe')
                 if(isValid){
                     req.user = user;
                     next();
@@ -101,7 +102,7 @@ exports.signOut = catchAsync(async(req, res, next)=>{
     if(token){
         const user = await User.findById(req.user._id);
         await user.removeToken(token);
-        res.cookie('jwt', 'logout');
+        res.cookie('jwt', 'logout', {httpOnly: true});
         res.status(200).send({
             status: 'Success',
             message: 'Log Out successfully'

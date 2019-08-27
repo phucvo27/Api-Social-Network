@@ -76,20 +76,22 @@ exports.createPost = catchAsync(async (req, res, next)=>{
 });
 
 exports.updatePost = catchAsync(async (req, res, next)=>{
-    const { content, id } = req.body;
-    if(!content || !id){
+    const { content } = req.body;
+    const image = req.file ? `img/posts/${req.file.filename}.jpeg` : null;
+    if(!content || !req.params.id){
         return next(new AppError('Missing required field', 400));
     }else{
-        const post = await Post.findById(id);
+        const post = await Post.findOne({_id: req.params.id, owner: req.user._id});
         if(post){
             post.content = content;
+            post.image = image;
             await post.save(); // because we want run all validate 
             res.status(200).send({
                 status: 'Success',
                 message: 'Update successfully'
             })
         }else{
-            return next(new AppError('Could not find the post', 400))
+            return next(new AppError('Could not find the post or you not own this post', 400))
         }
     }
 });
@@ -97,9 +99,13 @@ exports.updatePost = catchAsync(async (req, res, next)=>{
 exports.deletePost = catchAsync(async (req, res, next)=>{
     const { id } = req.params;
     //const post = await Post.findByIdAndDelete(id);
-    await Post.findByIdAndDelete(id);
-    res.status(200).send({
-        status: 'Success',
-        message: 'Delete successfully'
-    })
+    const isSuccess = await Post.findOneAndDelete({_id: id, owner: req.user._id});
+    if(isSuccess){
+        res.status(200).send({
+            status: 'Success',
+            message: 'Delete successfully'
+        })
+    }else{
+        return next(new AppError('Could not delete or you are not own this post', 400))
+    }
 })

@@ -9,17 +9,17 @@ const { commentRouters } = require('../routes/commentRouters');
 //     .post( authControllers.protect, commentControllers.createComment)
 
 postRouter.use('/:postId/comments', commentRouters);
-
+postRouter.use(authControllers.protect);
 postRouter
     .route('/')
-    .get(authControllers.protect, postControllers.getAll)
-    .post(authControllers.protect, postControllers.handleImageInPost, postControllers.resizeImageInPost ,postControllers.createPost)
-    .patch(authControllers.protect, postControllers.updatePost);
+    .get(postControllers.getAll)
+    .post(postControllers.handleImageInPost, postControllers.resizeImageInPost ,postControllers.createPost);
 
 postRouter
     .route('/:id')
     .get(postControllers.getPost)
-    .delete(postControllers.deletePost);
+    .delete(postControllers.deletePost)
+    .patch(postControllers.handleImageInPost, postControllers.resizeImageInPost ,postControllers.updatePost);
 
 
 

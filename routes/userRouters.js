@@ -7,13 +7,14 @@ userRouter.post('/signup', authController.signUp);
 
 userRouter.get('/signout', authController.protect, authController.signOut);
 
+
+userRouter.post('/forgot-password', authController.forgotPassword)
+userRouter.patch('/reset-password/:token', authController.resetPassword);
 // after this point , user must be logged in to continous
 userRouter.use(authController.protect);
 
 userRouter.patch('/change-password', authController.protect, authController.updatePassword)
 
-userRouter.post('/forgot-password', authController.forgotPassword)
-userRouter.patch('/reset-password/:token', authController.resetPassword);
 
 userRouter.get('/request-update-email', userControllers.requireUpdateEmail);
 userRouter.patch('/update-email', userControllers.updateEmail);

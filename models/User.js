@@ -18,7 +18,8 @@ const userSchemas = new mongoose.Schema({
             },
             message: 'Your email is invalid'
         },
-        required: [true, 'Please provide your email']
+        required: [true, 'Please provide your email'],
+        unique: true
     },
     password: {
         type: String,
@@ -160,12 +161,14 @@ userSchemas.methods.isTokenStillValid = function(timeOfToken, currentToken){
     if(user.passwordChangedAt){
         const changedTime = parseInt(user.passwordChangedAt.getTime() / 1000); // timeOfToken ( iat of jwt ) is second -> need to convert passwordChangedAt to second
         const isStillExistInDB = user.tokens.find(token => token.token === currentToken);
-        
+        console.log(isStillExistInDB)
         return timeOfToken > changedTime && isStillExistInDB;
         // that's mean :  token is generated after the password changed
     }else{
         // User does not change password before
-        return true;
+        const isStillExistInDB = user.tokens.find(token => token.token === currentToken);
+        console.log(isStillExistInDB)
+        return isStillExistInDB;
     }
 }
 

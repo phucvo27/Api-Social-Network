@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+const { Comment } = require('./Comment');
 const postSchemas = new mongoose.Schema({
     content: {
         type: String,
@@ -31,6 +31,11 @@ postSchemas.virtual('comments', {
     ref: 'Comment',
     foreignField: 'post',
     localField: '_id'
+})
+
+postSchemas.post('findOneAndDelete', async function(doc, next){
+    await Comment.deleteMany({post: doc._id}); // remove all comment of this post
+    next();
 })
 
 const Post = mongoose.model('Post', postSchemas);

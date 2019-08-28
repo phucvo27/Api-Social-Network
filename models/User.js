@@ -161,13 +161,13 @@ userSchemas.methods.isTokenStillValid = function(timeOfToken, currentToken){
     if(user.passwordChangedAt){
         const changedTime = parseInt(user.passwordChangedAt.getTime() / 1000); // timeOfToken ( iat of jwt ) is second -> need to convert passwordChangedAt to second
         const isStillExistInDB = user.tokens.find(token => token.token === currentToken);
-        console.log(isStillExistInDB)
+        //console.log(isStillExistInDB)
         return timeOfToken > changedTime && isStillExistInDB;
         // that's mean :  token is generated after the password changed
     }else{
         // User does not change password before
         const isStillExistInDB = user.tokens.find(token => token.token === currentToken);
-        console.log(isStillExistInDB)
+        //console.log(isStillExistInDB)
         return isStillExistInDB;
     }
 }

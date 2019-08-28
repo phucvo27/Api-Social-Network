@@ -38,7 +38,7 @@ const sendTokenResponse = async (user , statusCode, res)=>{
 exports.protect = catchAsync( async (req, res, next)=>{
     // get token from cookies
     const token = req.cookies.jwt;
-    console.log(token);
+    //console.log(token);
     if(token){
         try{
             const decoded = await verifyToken(token, process.env.SECRET_KEY);
@@ -46,7 +46,7 @@ exports.protect = catchAsync( async (req, res, next)=>{
             //console.log(user)
             if(user){
                 const isValid = await user.isTokenStillValid(decoded.iat, token);
-                console.log('hehehe')
+                //console.log('hehehe')
                 if(isValid){
                     req.user = user;
                     next();
@@ -120,7 +120,7 @@ exports.forgotPassword = catchAsync( async (req, res, next)=>{
     if(user){
         // create the password token and assign expired for that passwordToken
         const resetToken = await user.generatePasswordToken();
-        console.log(resetToken)
+        //console.log(resetToken)
         // send url with resetToken to user's email
         const urlResetPassword = `For updating the password , please go to : ${req.protocol}://${req.hostname}/api/user/reset-password/${resetToken}`
         const isSent = await sendEmail(email,'Reset Password', urlResetPassword)

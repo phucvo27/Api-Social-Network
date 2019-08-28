@@ -55,6 +55,11 @@ exports.getPost = catchAsync(async (req, res, next)=>{
     sendResponse(post, 200, res);
 })
 
+exports.getListLiked = catchAsync(async(req, res, next)=>{
+    const post = await Post.findById(req.params.id).populate('likes', {lean: true}).lean();
+    sendResponse(post, 200, res);
+})
+
 exports.createPost = catchAsync(async (req, res, next)=>{
     const { content } = req.body;
     const image = req.file ? `img/posts/${req.file.filename}.jpeg` : null;

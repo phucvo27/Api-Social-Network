@@ -4,7 +4,7 @@
   "description": "This is an API for Social Network Application , it is written by NodeJS . About Front-end Part which is written by ReactJS will be published at another repository that called FE-Social-Network",
   "main": "index.js",
   "scripts": {
-    "test": "env-cmd -f ./config/dev.env jest",
+    "test": "env-cmd -f ./config/test.env jest --watch",
     "dev": "env-cmd -f ./config/dev.env nodemon index.js"
   },
   "repository": {

@@ -13,6 +13,7 @@ const sendProdError = (err, res)=>{
 }
 
 const sendDevError= (err, res)=>{
+
     res.status(err.statusCode).send({
         status: 'Fail',
         message: err.message
@@ -20,6 +21,7 @@ const sendDevError= (err, res)=>{
 }
 
 const globalErrorHandler = (err, req, res, next)=>{
+    err.statusCode = err.statusCode ? err.statusCode : 400;
     let error = {...err};
     console.log(err)
     if(process.env.NODE_ENV === 'production'){

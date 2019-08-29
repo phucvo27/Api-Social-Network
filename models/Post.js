@@ -38,9 +38,15 @@ postSchemas.virtual('likes', {
 })
 
 postSchemas.post('findOneAndDelete', async function(doc, next){
-    await Comment.deleteMany({post: doc._id}); // remove all comment of this post
-    await Like.deleteMany({post: doc._id}); // remove all comment of this post
-    next();
+    //console.log(doc)
+    if(doc){
+        // make sure only delete when doc is already exist and has been deleted
+        await Comment.deleteMany({post: doc._id}); // remove all comment of this post
+        await Like.deleteMany({post: doc._id}); // remove all comment of this post
+        next();
+    }else{
+        next();
+    }
 })
 
 

@@ -26,8 +26,6 @@ albumSchema.statics.addImageToAlbum = async function(albumName, listImages, owne
     const Album = this;
     const album = await Album.findOne({name: albumName});
     if(album){
-        console.log(typeof owner, album.owner);
-        console.log(album.owner.toString() === owner.toString())
         album.images = album.images.concat(listImages);
         await album.save();
     }else{

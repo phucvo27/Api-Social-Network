@@ -24,6 +24,6 @@ postRouter
     .delete(postControllers.deletePost)
     .patch(postControllers.handleImageInPost, postControllers.resizeImageInPost ,postControllers.updatePost);
 
-    postRouter.get('/:id/list-liked', postControllers.getListLiked)
+postRouter.get('/:id/list-liked', postControllers.getListLiked)
 
 module.exports = { postRouter };

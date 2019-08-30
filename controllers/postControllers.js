@@ -1,5 +1,7 @@
 const sharp = require('sharp')
 const { Post } = require('../models/Post');
+const { Comment } = require('../models/Comment');
+const { Like } = require('../models/Like');
 const { catchAsync } = require('../utils/catchAsync');
 const { AppError } = require('../utils/AppError');
 const { handleImage } = require('../utils/handleImageUpload');
@@ -106,6 +108,10 @@ exports.deletePost = catchAsync(async (req, res, next)=>{
     //const post = await Post.findByIdAndDelete(id);
     const isSuccess = await Post.deleteOne({_id: id, owner: req.user._id});
     if(isSuccess.deletedCount === 1){
+        if(process.env.NODE_ENV === 'test'){
+            await Comment.deleteMany();
+            await Like.deleteMany();
+        }
         res.status(200).send({
             status: 'Success',
             message: 'Delete successfully'

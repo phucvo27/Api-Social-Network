@@ -20,7 +20,7 @@ exports.getComment = catchAsync(async (req,res,next)=>{
     const comment = await Comment.findById(id);
     if(comment){
         res.status(200).send({
-            status: 'Fail',
+            status: 'Success',
             data: {
                 comment
             }
@@ -60,11 +60,13 @@ exports.createComment = catchAsync(async (req, res, next)=>{
 exports.updateComment = catchAsync(async (req, res, next)=>{
     const { content } = req.body;
     if(!content || !req.params.id){
+        console.log('missing')
         return next( new AppError('Missing required field', 400))
     }else{
         console.log(req.user._id)
         const comment = await Comment.findOne({_id: req.params.id, owner: req.user._id});
         if(comment){
+            console.log('find that comment')
             comment.content = content;
             await comment.save();
             res.status(200).send({
@@ -72,6 +74,7 @@ exports.updateComment = catchAsync(async (req, res, next)=>{
                 message: 'Update successfully'
             })
         }else{
+            console.log('can not find that comment')
             return next( new AppError('Could not find your comment or you not own this comment', 400))
         }
     }
@@ -81,11 +84,15 @@ exports.deleteComment = catchAsync(async (req, res, next)=>{
     const { id } = req.params;
 
     if(id){
-        await Comment.findOneAndDelete({_id: id, owner: req.user._id});
-        res.status(200).send({
-            status: 'Success',
-            message: 'Delete comment successfully'
-        })
+        const deleted = await Comment.deleteOne({_id: id, owner: req.user._id});
+        if(deleted.deletedCount === 1){
+            res.status(200).send({
+                status: 'Success',
+                message: 'Delete comment successfully'
+            })
+        }else if(deleted.deletedCount === 0){
+            return next( new AppError('Could not find that comment , or you are not own it', 400))
+        }
     }else{
         return next( new AppError('Missing require field', 400))
     }

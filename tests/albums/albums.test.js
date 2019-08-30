@@ -57,7 +57,7 @@ beforeEach(async()=>{
 
 afterEach(async()=>{
     try{
-        await Promise.all([User.deleteMany(), await Album.deleteMany()]);
+        await Promise.all([User.deleteMany(), Album.deleteMany()]);
         //done();
     }catch(e){
         console.log('Something wrong when delete data', e.message)

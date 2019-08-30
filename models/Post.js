@@ -37,16 +37,23 @@ postSchemas.virtual('likes', {
     localField: '_id'
 })
 
-postSchemas.post('findOneAndDelete', async function(doc, next){
-    //console.log(doc)
-    if(doc){
-        // make sure only delete when doc is already exist and has been deleted
-        await Comment.deleteMany({post: doc._id}); // remove all comment of this post
-        await Like.deleteMany({post: doc._id}); // remove all comment of this post
-        next();
+postSchemas.post('deleteOne', async function(doc, next){
+    if(process.env.NODE_ENV === 'test'){
+        return next();
     }else{
-        next();
+        if(doc){
+        // make sure only delete when doc is already exist and has been deleted
+            console.log('delete all comment')
+            await Comment.deleteMany({post: doc._id}); // remove all comment of this post
+            await Like.deleteMany({post: doc._id}); // remove all comment of this post
+            const comments = await Comment.find({post: doc._id});
+            console.log(comments)
+            next();
+        }else{
+            next();
+        }
     }
+    
 })
 
 

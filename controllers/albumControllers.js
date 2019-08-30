@@ -17,13 +17,12 @@ exports.getAll = catchAsync(async (req, res ,next)=>{
 });
 
 exports.getAlbum = catchAsync(async (req, res ,next)=>{
-    const albums = await Album.findById(req.params.id);
-    if(albums){
+    const album = await Album.findById(req.params.id);
+    if(album){
         res.status(200).send({
             status: 'Success',
-            length: albums.length,
             data: {
-                albums
+                album
             }
         })
     }else{
@@ -60,11 +59,11 @@ exports.handleImageAlbums = catchAsync(async (req, res, next)=>{
 })
 
 exports.resizeMultipleImage = catchAsync(async(req, res, next)=>{
-    if(req.files && req.body.albumName){
+    if(req.files && req.body.name){
         req.body.albums = []; // for saving into db
         await Promise.all(
             req.files.albums.map(async (img , index)=>{
-                const imageFileName = `albums-${req.body.albumName}-img-${index}-${Date.now()}`;
+                const imageFileName = `albums-${req.body.name}-img-${index}-${Date.now()}`;
                 await sharp(img.buffer)
                             .resize(800, 600)
                             .toFormat('jpeg')
@@ -81,7 +80,7 @@ exports.resizeMultipleImage = catchAsync(async(req, res, next)=>{
 
 exports.createAlbum = catchAsync(async( req, res, next)=>{
     const album = await Album.create({
-        name: req.body.albumName,
+        name: req.body.name,
         images: req.body.albums,
         owner: req.user._id
     })
@@ -119,11 +118,16 @@ exports.updateAlbum = catchAsync(async (req, res, next)=>{
 exports.deleteAlbum = catchAsync(async(req, res, next)=>{
     const { id } = req.params;
     if(id){
-        await Album.findByIdAndRemove(id);
-        res.status(200).send({
-            status: 'Success',
-            message: 'Album has been removed successfully'
-        })
+        const deleted = await Album.deleteOne({_id: id, owner: req.user._id});
+        console.log(deleted);
+        if(deleted.deletedCount === 1){
+            res.status(200).send({
+                status: 'Success',
+                message: 'Album has been removed successfully'
+            })
+        }else{
+            return next(new AppError('Could not delete or you are not own this post', 400))
+        }
     }else{
         return next(new AppError('Missing required field', 400))
     }
@@ -131,8 +135,9 @@ exports.deleteAlbum = catchAsync(async(req, res, next)=>{
 })
 
 exports.addImages = catchAsync(async (req, res, next)=>{
-    const { albumName, albums } = req.body;
-    await Album.addImageToAlbum(albumName, albums, req.user._id);
+    const { albums } = req.body;
+    const { id } = req.params;
+    await Album.addImageToAlbum(id, albums, req.user._id);
     res.status(200).send({
         status: 'Success',
         message: 'Adding new images successfully'
@@ -141,10 +146,10 @@ exports.addImages = catchAsync(async (req, res, next)=>{
 })
 
 exports.removeMultipleImage = catchAsync(async(req, res, next)=>{
-    const { albumId, listImages } = req.body;
+    const { listImages } = req.body;
     console.log(listImages)
     // find the album
-    const album = await Album.findById(albumId);
+    const album = await Album.findOne({_id: req.params.id, owner: req.user._id});
     if(album){
         try{
             const isDeleteSuccess = await album.deleteMultiple(listImages);

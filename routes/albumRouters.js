@@ -12,12 +12,12 @@ albumRouter
         albumControllers.createAlbum)
     
     
-albumRouter.patch('/add', 
+albumRouter.patch('/:id/add', 
         albumControllers.handleImageAlbums,
         albumControllers.resizeMultipleImage,
         albumControllers.addImages
         )
-albumRouter.delete('/delete', albumControllers.removeMultipleImage);
+albumRouter.delete('/:id/delete', albumControllers.removeMultipleImage);
 
 
 albumRouter.get('/:userId/albums', albumControllers.getAlbums)

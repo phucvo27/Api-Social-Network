@@ -104,8 +104,8 @@ exports.updatePost = catchAsync(async (req, res, next)=>{
 exports.deletePost = catchAsync(async (req, res, next)=>{
     const { id } = req.params;
     //const post = await Post.findByIdAndDelete(id);
-    const isSuccess = await Post.findOneAndDelete({_id: id, owner: req.user._id});
-    if(isSuccess){
+    const isSuccess = await Post.deleteOne({_id: id, owner: req.user._id});
+    if(isSuccess.deletedCount === 1){
         res.status(200).send({
             status: 'Success',
             message: 'Delete successfully'

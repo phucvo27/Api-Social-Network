@@ -30,5 +30,6 @@ userRouter.post('/upload-avatar',
         userControllers.resizeUserAvatar,
         userControllers.uploadAvatar
         )
+userRouter.get('/:id/list-friend/', userControllers.getFriends)
 
 module.exports = { userRouter };
